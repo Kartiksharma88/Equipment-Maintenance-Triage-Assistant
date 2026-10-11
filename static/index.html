@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Equipment Maintenance Triage Assistant</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23241d13'/%3E%3Cg fill='none' stroke='%23e7b955'%3E%3Ccircle cx='32' cy='32' r='19' stroke-width='12' stroke-dasharray='7.8 5.1'/%3E%3Ccircle cx='32' cy='32' r='8.5' stroke-width='6'/%3E%3C/g%3E%3Ccircle cx='32' cy='32' r='2.6' fill='%23e7b955'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<a class="skip" href="#pageTitle">Skip to content</a>
+<div class="shell">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="27" height="27"><defs><linearGradient id="lgold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe9b8"/><stop offset="1" stop-color="#c98f2b"/></linearGradient></defs><circle cx="12" cy="12" r="7.1" fill="none" stroke="url(#lgold)" stroke-width="4.8" stroke-dasharray="2.95 1.95"/><circle cx="12" cy="12" r="3.1" fill="none" stroke="url(#lgold)" stroke-width="2.4"/><circle cx="12" cy="12" r="1" fill="url(#lgold)"/></svg></div>
+      <div>
+        <div class="brand-name">MaintTriage</div>
+        <div class="brand-sub">Fix machines, step by step</div>
+      </div>
+    </div>
+    <div class="nav-cap">Menu</div>
+    <nav class="nav" id="mainNav" aria-label="Main">
+      <button data-view="home" class="active"><span class="ico">⌂</span>Home</button>
+      <button data-view="report"><span class="ico">＋</span>Report a problem</button>
+      <button data-view="reports"><span class="ico">🗂</span>Reports <span id="repCount" class="count dim" hidden></span></button>
+      <button data-view="workorders"><span class="ico">✔</span>Work orders <span id="woCount" class="count" hidden></span></button>
+      <button data-view="manuals"><span class="ico">📖</span>Manuals</button>
+    </nav>
+    <div class="side-foot">
+      <div class="side-card">🛡️ Helper only · No remote control · A person approves every job</div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="pageTitle">Home</h1>
+        <p class="page-sub" id="pageSub">What would you like to do?</p>
+      </div>
+    </header>
+    <div class="safety-strip">⚠ <b>Helper only.</b> Suggestions are guesses — a technician must check the machine and approve every job.</div>
+
+    <!-- HOME -->
+    <section id="view-home" class="view active">
+      <div class="actions">
+        <button class="action-card" data-goto="report">
+          <div class="ac-ico">🔧</div>
+          <div><b>Report a problem</b><p>Describe what's wrong. Takes about 2 minutes.</p></div>
+          <div class="ac-go">Start →</div>
+        </button>
+        <button class="action-card" data-goto="workorders">
+          <div class="ac-ico">✔</div>
+          <div><b>Review work orders</b><p><span id="homeDraftCount">—</span> waiting for your decision.</p></div>
+          <div class="ac-go">Review →</div>
+        </button>
+        <button class="action-card" data-goto="reports">
+          <div class="ac-ico">🗂</div>
+          <div><b>See all reports</b><p>Every problem, its result and its history.</p></div>
+          <div class="ac-go">Open →</div>
+        </button>
+      </div>
+      <div id="homeTour" class="tour card" hidden>
+        <h2>New here? Three steps and you're done</h2>
+        <ol>
+          <li><b>🔧 Report</b> — describe the problem (≈2 min, example button included).</li>
+          <li><b>◈ Analyse</b> — read the plain-words summary, answer any questions.</li>
+          <li><b>✔ Decide</b> — open the job card, then approve or reject with your name.</li>
+        </ol>
+        <button class="btn primary" data-goto="report">Start step 1 →</button>
+      </div>
+      <div class="stats" id="statCards"></div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-h"><h2>Latest reports</h2><button class="btn ghost sm" data-goto="reports">See all</button></div>
+          <div id="dashRecent"></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h2>Needs your decision</h2><button class="btn ghost sm" data-goto="workorders">Open queue</button></div>
+          <div id="dashDrafts"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h2>Recent activity</h2><button class="btn ghost sm" id="logReload">↻ Reload</button></div>
+        <div id="dashLogs"></div>
+      </div>
+      <details class="card">
+        <summary><b>What's covered here? (click to open)</b></summary>
+        <div id="coverage" class="coverage"></div>
+      </details>
+    </section>
+
+    <!-- REPORT A PROBLEM: Multi-step sequential wizard -->
+    <section id="view-report" class="view">
+      <div class="card wizard-card">
+        <!-- Wizard Header -->
+        <div class="card-h">
+          <div>
+            <h2>Tell us about the problem</h2>
+            <p class="muted sm" style="margin:2px 0 0">Complete each part to start automated diagnostic triage</p>
+          </div>
+          <button id="exampleBtn" class="btn ghost sm" type="button">✨ Fill with an example</button>
+        </div>
+
+        <!-- Progress Stepper Bar -->
+        <div class="stepper" id="reportStepper">
+          <div class="step-item active" data-step="1">
+            <div class="step-num">1</div>
+            <div class="step-label">
+              <span class="step-title">Which machine?</span>
+              <span class="step-sub">Select equipment</span>
+            </div>
+          </div>
+          <div class="step-divider"></div>
+          <div class="step-item" data-step="2">
+            <div class="step-num">2</div>
+            <div class="step-label">
+              <span class="step-title">What's wrong?</span>
+              <span class="step-sub">Symptom details</span>
+            </div>
+          </div>
+          <div class="step-divider"></div>
+          <div class="step-item" data-step="3">
+            <div class="step-num">3</div>
+            <div class="step-label">
+              <span class="step-title">Meter readings</span>
+              <span class="step-sub">Sensors (optional)</span>
+            </div>
+          </div>
+          <div class="step-divider"></div>
+          <div class="step-item" data-step="4">
+            <div class="step-num">4</div>
+            <div class="step-label">
+              <span class="step-title">Review &amp; Submit</span>
+              <span class="step-sub">Confirm report</span>
+            </div>
+          </div>
+        </div>
+
+        <form id="reportForm" novalidate>
+          <!-- ================= STEP 1 ================= -->
+          <div class="wizard-step active" id="step-1">
+            <div class="step-header">
+              <h3>1 · Which machine?</h3>
+              <p class="muted sm">Choose the machine type and enter the identifier from the nameplate.</p>
+            </div>
+
+            <!-- Machine Showcase: Visual selector & live image preview -->
+            <div class="machine-showcase">
+              <div class="machine-picker">
+                <label for="fType" style="margin-top:0">Machine type *</label>
+                <select id="fType"></select>
+
+                <!-- Quick Visual Machine Tiles -->
+                <div class="machine-tiles" id="machineTiles"></div>
+
+                <label style="margin-top:14px">Machine number * <small>written on the machine plate, e.g. PUMP-101</small>
+                  <input id="fId" maxlength="64" placeholder="PUMP-101" autocomplete="off" />
+                </label>
+                <label style="margin-top:4px">…or pick a machine already on file
+                  <select id="fIdSel" aria-label="Known machines of this type"></select>
+                </label>
+
+                <div id="typeHint" class="hint" style="margin-top:10px">We know these machines: Centrifugal Pump · Air Compressor · HVAC Unit · Conveyor Belt · Diesel Generator · Industrial Fan</div>
+              </div>
+
+              <!-- Machine Preview Card with Image -->
+              <div class="machine-preview-card" id="machinePreviewCard">
+                <div class="mp-img-wrap">
+                  <img id="machineImg" src="img/centrifugal_pump.jpg" alt="Selected equipment" />
+                  <span id="machineTag" class="mp-tag">Pumps &amp; Hydraulics</span>
+                </div>
+                <div class="mp-info">
+                  <b id="machineTitle">Centrifugal Pump</b>
+                  <p id="machineDesc" class="sm muted">Fluid transport pump with rotating impeller and mechanical seal assembly.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-footer">
+              <div></div>
+              <button type="button" id="nextToStep2" class="btn primary">Next: What's wrong? →</button>
+            </div>
+          </div>
+
+          <!-- ================= STEP 2 ================= -->
+          <div class="wizard-step" id="step-2">
+            <div class="step-header">
+              <div class="step-header-row">
+                <div>
+                  <h3>2 · What's wrong?</h3>
+                  <p class="muted sm">Describe what symptoms you observe and note recent operating events or alarms.</p>
+                </div>
+                <div class="active-machine-badge" id="step2MachineBadge">
+                  <span class="ico">⚙</span> <span id="s2BadgeText">Centrifugal Pump · PUMP-101</span>
+                </div>
+              </div>
+            </div>
+
+            <label>Describe the problem * <small>tell it like: <b>what</b> + <b>where</b> + <b>since when</b></small>
+              <textarea id="fIssue" rows="3" placeholder="Example: Grinding noise near the bearings, machine feels hot, started 2 days ago"></textarea>
+            </label>
+            <div class="quick-chips">
+              <span class="sm muted">Quick symptom phrases:</span>
+              <button type="button" class="chip-btn" data-append-issue="Grinding noise near bearing housing">Grinding noise</button>
+              <button type="button" class="chip-btn" data-append-issue="Machine running unusually hot to touch">Running hot</button>
+              <button type="button" class="chip-btn" data-append-issue="Severe vibration increasing over 2 days">High vibration</button>
+              <button type="button" class="chip-btn" data-append-issue="Fluid/oil leak observed around mechanical seal">Seal leak</button>
+              <button type="button" class="chip-btn" data-append-issue="Discharge pressure dropping below operating limit">Pressure drop</button>
+            </div>
+
+            <label style="margin-top:16px">What happened recently? * <small>trips, alarms, strange behaviour — or write "none observed"</small>
+              <textarea id="fEvents" rows="2" placeholder="Example: Stopped once yesterday, restarted fine. Oil changed 5 months ago."></textarea>
+            </label>
+            <div class="quick-chips">
+              <span class="sm muted">Quick event phrases:</span>
+              <button type="button" class="chip-btn" data-append-events="Tripped on thermal overload once yesterday, reset OK.">Tripped yesterday</button>
+              <button type="button" class="chip-btn" data-append-events="Noise started immediately after restart following maintenance.">After restart</button>
+              <button type="button" class="chip-btn" data-append-events="none observed">None observed</button>
+            </div>
+
+            <div class="step-footer">
+              <button type="button" id="backToStep1" class="btn ghost">← Back: Machine</button>
+              <button type="button" id="nextToStep3" class="btn primary">Next: Meter readings →</button>
+            </div>
+          </div>
+
+          <!-- ================= STEP 3 ================= -->
+          <div class="wizard-step" id="step-3">
+            <div class="step-header">
+              <div class="step-header-row">
+                <div>
+                  <h3>3 · Meter readings <span class="tag ok">OPTIONAL — skip anything you don't know</span></h3>
+                  <p class="muted sm">Enter gauge, multimeter, or telemetry values if available. If unknown, leave blank.</p>
+                </div>
+                <button type="button" id="skipSensorsBtn" class="btn ghost sm">Skip this step →</button>
+              </div>
+            </div>
+
+            <div id="sensorGrid" class="sensors"></div>
+
+            <div class="step-footer">
+              <button type="button" id="backToStep2" class="btn ghost">← Back: Problem</button>
+              <button type="button" id="nextToStep4" class="btn primary">Next: Review &amp; Submit →</button>
+            </div>
+          </div>
+
+          <!-- ================= STEP 4 (REVIEW & SUBMIT) ================= -->
+          <div class="wizard-step" id="step-4">
+            <div class="step-header">
+              <h3>4 · Review &amp; Submit Report</h3>
+              <p class="muted sm">Confirm details below before running automated triage and AI enhancement.</p>
+            </div>
+
+            <div class="review-panel">
+              <div class="review-machine-box">
+                <img id="reviewImg" src="img/centrifugal_pump.jpg" alt="Machine preview" class="review-thumb" />
+                <div>
+                  <span class="tag brand" id="reviewTag">Pumps &amp; Hydraulics</span>
+                  <h4 id="reviewMachineName" style="margin:4px 0 2px">Centrifugal Pump</h4>
+                  <p class="muted sm" style="margin:0">Equipment ID: <b id="reviewId">PUMP-101</b></p>
+                </div>
+                <button type="button" class="btn ghost sm" id="editStep1Btn" style="margin-left:auto">Edit</button>
+              </div>
+
+              <div class="review-section">
+                <div class="review-sec-h">
+                  <b>Observed Problem</b>
+                  <button type="button" class="btn ghost sm" id="editStep2Btn">Edit</button>
+                </div>
+                <p id="reviewIssue" class="review-text">—</p>
+                <div class="review-sub">
+                  <b>Operating Events:</b>
+                  <span id="reviewEvents">—</span>
+                </div>
+              </div>
+
+              <div class="review-section">
+                <div class="review-sec-h">
+                  <b>Meter Readings</b>
+                  <button type="button" class="btn ghost sm" id="editStep3Btn">Edit</button>
+                </div>
+                <div id="reviewSensors" class="review-sensor-pills"></div>
+              </div>
+            </div>
+
+            <p id="formErr" class="error"></p>
+
+            <div class="step-footer submit-bar">
+              <button type="button" id="backToStep3" class="btn ghost">← Back: Meter readings</button>
+              <button type="submit" id="submitBtn" class="btn accent big-btn">▶ Analyse my problem</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <details class="card">
+        <summary><b>How are readings judged? (the fixed rules)</b></summary>
+        <div class="table-wrap"><table class="tbl" id="ruleTable"></table></div>
+      </details>
+    </section>
+
+    <!-- TRIAGE RESULT -->
+    <section id="view-triage" class="view">
+      <div class="triage-top-bar">
+        <button class="btn ghost sm back-btn" data-goto="reports">← Back to all reports</button>
+        <div class="report-view-controls">
+          <span class="view-mode-label sm muted">Format:</span>
+          <div class="segmented-control" id="triageViewToggle">
+            <button type="button" class="seg-btn active" id="btnPhasedMode">📑 Phased Workflow</button>
+            <button type="button" class="seg-btn" id="btnFullReportMode">📄 Official Engineering Report</button>
+          </div>
+          <button type="button" class="btn ghost sm print-btn" id="printReportBtn" title="Print / Export Report">🖨️ Print Report</button>
+        </div>
+      </div>
+
+      <div id="triageEmpty" class="empty card">
+        <div class="empty-ico">◈</div>
+        <h2>No result to show</h2>
+        <p>Send a report first, or open any report to see its result.</p>
+        <button class="btn primary" data-goto="report">Report a problem</button>
+      </div>
+
+      <div id="triageOut" hidden>
+        <!-- Top Executive Summary Card (Official Engineering Format) -->
+        <div class="card triage-exec-card">
+          <div class="triage-exec-top">
+            <div id="triageHero" class="hero"></div>
+            <div class="triage-exec-right">
+              <div id="tKpis" class="kpis-compact"></div>
+              <button class="btn primary sm" id="quickJumpToWO" type="button">Decide on Job Card →</button>
+            </div>
+          </div>
+          <div id="plainWords" class="plain-verdict"></div>
+          <div id="alerts" class="triage-alerts"></div>
+        </div>
+
+        <!-- Sequential Result Flow Stepper / Tabs -->
+        <div class="tflow-nav" id="tflowNav">
+          <button type="button" class="tflow-btn active" data-ttab="1">
+            <span class="tflow-badge">1</span>
+            <div class="tflow-text">
+              <b>Symptoms &amp; Telemetry</b>
+              <small>What happened &amp; meters</small>
+            </div>
+          </button>
+          <div class="tflow-arrow">→</div>
+          <button type="button" class="tflow-btn" data-ttab="2">
+            <span class="tflow-badge">2</span>
+            <div class="tflow-text">
+              <b>Probable Causes</b>
+              <small>Ranked hypotheses</small>
+            </div>
+          </button>
+          <div class="tflow-arrow">→</div>
+          <button type="button" class="tflow-btn" data-ttab="3">
+            <span class="tflow-badge">3</span>
+            <div class="tflow-text">
+              <b>Inspection &amp; Manuals</b>
+              <small>Checklist &amp; citations</small>
+            </div>
+          </button>
+          <div class="tflow-arrow">→</div>
+          <button type="button" class="tflow-btn" data-ttab="4">
+            <span class="tflow-badge">4</span>
+            <div class="tflow-text">
+              <b>Job Card &amp; Sign-off</b>
+              <small>Technician decision</small>
+            </div>
+          </button>
+        </div>
+
+        <!-- ================= TAB 1: Symptoms & Meters ================= -->
+        <div class="ttab-pane active" id="ttab-1">
+          <div class="report-sec-header">
+            <h3>Phase 1 · Diagnostic Intake &amp; Sensor Telemetry</h3>
+            <span class="pill info sm">Intake &amp; Verification</span>
+          </div>
+          <div class="grid2">
+            <div class="card">
+              <div class="card-h">
+                <h2><span class="sec-n">1</span>What you told us</h2>
+              </div>
+              <ul id="tObs" class="bullets"></ul>
+            </div>
+            <div class="card">
+              <div class="card-h">
+                <h2><span class="sec-n">2</span>Automatic meter checks</h2>
+              </div>
+              <div id="tChecks"></div>
+              <div id="tDQ" class="dq-box"></div>
+            </div>
+          </div>
+          <div class="step-footer tab-nav-footer">
+            <div></div>
+            <button type="button" class="btn primary" id="tflowNext1">Next: Probable Causes →</button>
+          </div>
+        </div>
+
+        <!-- ================= TAB 2: Probable Causes ================= -->
+        <div class="ttab-pane" id="ttab-2">
+          <div class="report-sec-header">
+            <h3>Phase 2 · Diagnostic Hypotheses &amp; Ranked Root Causes</h3>
+            <span class="tag danger sm">UNCONFIRMED HYPOTHESES</span>
+          </div>
+          <div class="card">
+            <div class="card-h">
+              <div>
+                <h2><span class="sec-n">2</span>Ranked Probable Causes</h2>
+                <p class="muted sm" style="margin:2px 0 0">Local rule matching + validated AI hypotheses (labelled unconfirmed until verified on site)</p>
+              </div>
+              <span class="tag danger">HYPOTHESES ONLY</span>
+            </div>
+            <div id="tCauses" class="causes-flow"></div>
+          </div>
+          <div class="step-footer tab-nav-footer">
+            <button type="button" class="btn ghost" id="tflowPrev2">← Back: Symptoms &amp; Telemetry</button>
+            <button type="button" class="btn primary" id="tflowNext2">Next: Inspection &amp; Manuals →</button>
+          </div>
+        </div>
+
+        <!-- ================= TAB 3: Checklist & Manuals ================= -->
+        <div class="ttab-pane" id="ttab-3">
+          <div class="report-sec-header">
+            <h3>Phase 3 · Actionable Inspection Protocol &amp; Technical Manuals</h3>
+            <span class="tag ok sm">Interactive Field Guide</span>
+          </div>
+          <div class="grid2">
+            <div class="card">
+              <div class="card-h">
+                <h2><span class="sec-n">3</span>Checks to do on site</h2>
+                <span class="tag ok sm" id="chkProgressBadge">Interactive</span>
+              </div>
+              <p class="muted sm">Tick each box as you complete it on the machine — ticks are saved in this browser per report.</p>
+              <ol id="tSteps" class="steps-list"></ol>
+            </div>
+
+            <div class="card">
+              <div class="card-h">
+                <h2><span class="sec-n">📖</span>Manual pages found</h2>
+                <span id="retrBadge"></span>
+              </div>
+              <p class="muted sm">Matched manufacturer procedures and inspection guidelines:</p>
+              <div id="tRetr" class="manual-flow"></div>
+            </div>
+          </div>
+
+          <!-- Dedicated Compact Clarification Card -->
+          <div class="card clarification-card" id="clarificationCard">
+            <div class="card-h">
+              <div>
+                <h2><span class="sec-n">?</span>Diagnostic Clarifications &amp; Follow-up Readings</h2>
+                <p class="muted sm" style="margin:2px 0 0">Answer any missing readings or conflict questions to refine analysis (optional):</p>
+              </div>
+              <span class="pill info sm" id="qCountBadge">Optional</span>
+            </div>
+            <div id="tQ" class="qa-grid"></div>
+            <div id="fupSensors"></div>
+            <div class="qa-footer">
+              <button id="fupBtn" class="btn primary sm">Send answers &amp; re-analyse</button>
+            </div>
+          </div>
+
+          <div class="step-footer tab-nav-footer">
+            <button type="button" class="btn ghost" id="tflowPrev3">← Back: Probable Causes</button>
+            <button type="button" class="btn primary" id="tflowNext3">Next: Ready Job Card →</button>
+          </div>
+        </div>
+
+        <!-- ================= TAB 4: Job Card & Decision ================= -->
+        <div class="ttab-pane" id="ttab-4">
+          <div class="report-sec-header">
+            <h3>Phase 4 · Official Work Order Draft &amp; Technician Sign-off</h3>
+            <span class="tag warn sm">Human Approval Required</span>
+          </div>
+          <div class="grid2">
+            <div class="card">
+              <div class="card-h">
+                <h2><span class="sec-n">4</span>Ready job card</h2>
+                <span class="tag warn">DRAFT</span>
+              </div>
+              <div id="tWO"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-h">
+                <h2>Urgency Rationale</h2>
+              </div>
+              <div id="tPri"></div>
+
+              <div class="section-gap">
+                <div class="card-h">
+                  <h2>✔ Confirmed on site? <small class="muted">technician only</small></h2>
+                </div>
+                <p class="muted sm">Write only what you verified with physical inspection and tools:</p>
+                <textarea id="confTxt" rows="3" placeholder="Write only what you verified with your own eyes and tools..."></textarea>
+                <div class="row" style="margin-top:10px">
+                  <input id="confBy" placeholder="Technician name" />
+                  <button id="confBtn" class="btn ok sm">Save as confirmed</button>
+                </div>
+                <p id="confMsg" class="muted sm"></p>
+              </div>
+            </div>
+          </div>
+          <div class="step-footer">
+            <button type="button" class="btn ghost" id="tflowPrev4">← Back: Checklist &amp; Manuals</button>
+            <button type="button" class="btn ghost" data-goto="reports">Back to All Reports</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORTS -->
+    <section id="view-reports" class="view">
+      <div class="card">
+        <div class="card-h"><h2>All reports</h2></div>
+        <div class="rep-filter-bar">
+          <div class="chips" id="repChips">
+            <button data-rf="" class="chip active">All</button>
+            <button data-rf="Needs decision" class="chip">Needs decision</button>
+            <button data-rf="Approved" class="chip">Approved</button>
+            <button data-rf="P1" class="chip">P1 urgent</button>
+          </div>
+          <div class="row-inline">
+            <select id="repUrg" aria-label="Filter by urgency">
+              <option value="">All urgencies</option>
+              <option>P1 - Emergency</option><option>P2 - Urgent</option>
+              <option>P3 - Planned</option><option>P4 - Routine</option>
+            </select>
+            <select id="repSort" aria-label="Sort reports">
+              <option value="new">Newest first</option>
+              <option value="urgent">Most urgent first</option>
+            </select>
+          </div>
+        </div>
+        <input id="repSearch" placeholder="🔍 Type to filter: machine number, type or word from the problem…" />
+        <div id="repList"></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h2>Machine history</h2></div>
+        <div class="row"><input id="hId" placeholder="Machine number, e.g. PUMP-101" /><button id="hBtn" class="btn primary sm">Show history</button></div>
+        <div id="hOut"></div>
+      </div>
+    </section>
+
+    <!-- WORK ORDERS -->
+    <section id="view-workorders" class="view">
+      <div class="card explain">
+        <b>Official Maintenance Job Queue:</b> The triage system drafts structured work orders based on deterministic rules and manual retrieval. Technicians retain full authority to edit, approve, or reject work orders.
+      </div>
+      <div class="card" id="woQueueCard">
+        <div class="card-h">
+          <div>
+            <h2>CMMS Work Order Register</h2>
+            <p class="muted sm" style="margin:2px 0 0">Review, audit, and approve equipment maintenance work orders</p>
+          </div>
+          <div class="row-inline">
+            <button id="woReload" class="btn ghost sm">↻ Refresh Queue</button>
+          </div>
+        </div>
+        <div class="wo-filter-bar">
+          <div class="chips" id="woChips">
+            <button data-f="" class="chip active">All <span class="chip-count" id="cntAll"></span></button>
+            <button data-f="draft" class="chip">Needs Decision <span class="chip-count" id="cntDraft"></span></button>
+            <button data-f="approved" class="chip">Approved <span class="chip-count" id="cntAppr"></span></button>
+            <button data-f="rejected" class="chip">Rejected <span class="chip-count" id="cntRej"></span></button>
+            <button data-f="superseded" class="chip">Superseded <span class="chip-count" id="cntSup"></span></button>
+          </div>
+          <input id="woSearch" class="wo-search-input" placeholder="🔍 Filter by WO#, Equipment, or Problem keywords..." />
+        </div>
+        <div id="woList"></div>
+      </div>
+      <div class="card" id="woDetail" hidden>
+        <div class="card-h"><h2 id="woTitle"></h2><span class="row-inline"><span id="woStatus"></span><button id="woPrint" class="btn ghost sm no-print">🖨️ Print job card</button></span></div>
+        <div id="woBody"></div>
+        <div id="woDecided" hidden></div>
+        <div id="woDecide">
+        <h3>Change the draft <small class="muted">only possible while it still needs a decision</small></h3>
+        <label>Title<input id="woEditTitle" /></label>
+        <label>Description<textarea id="woEditDesc" rows="4"></textarea></label>
+        <label>Add one more check<input id="woAddStep" placeholder="Example: test the motor before restart" /></label>
+        <div class="row">
+          <label>Urgency<select id="woEditPri"><option>P1 - Emergency</option><option>P2 - Urgent</option><option>P3 - Planned</option><option>P4 - Routine</option></select></label>
+          <label>Your name *<input id="woActor" placeholder="Needed for any decision" /></label>
+        </div>
+        <label>Note <small>needed to reject</small><input id="woNote" placeholder="Why approve / why reject?" /></label>
+        <div class="row btns">
+          <button id="woSave" class="btn ghost">💾 Save changes</button>
+          <button id="woApprove" class="btn ok big">✓ Approve this job</button>
+          <button id="woReject" class="btn danger">✕ Reject</button>
+        </div>
+        <p id="woMsg" class="muted sm"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- MANUALS -->
+    <section id="view-manuals" class="view">
+      <div class="card">
+        <div class="card-h"><h2>Find a fix in the manuals</h2><span id="kbCount2" class="pill info"></span></div>
+        <div class="row"><input id="kbQ" placeholder="Try: vibration, leak, overheating, noise, no pressure…" /><select id="kbType"><option value="">all machines</option></select><button id="kbBtn" class="btn primary sm">Search</button></div>
+        <div id="kbOut"></div>
+      </div>
+    </section>
+
+    <footer>MaintTriage · SQLite history · Every suggestion shows its source · No remote control · A person approves every job</footer>
+  </div>
+</div>
+
+<div id="toasts" aria-live="polite" aria-atomic="false"></div>
+<script src="app.js"></script>
+</body>
+</html>

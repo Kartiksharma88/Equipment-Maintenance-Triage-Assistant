@@ -1,0 +1,20 @@
+# Render.com deployment (Docker). Create a new Web Service → "Deploy from repo".
+# The free plan is enough for review use (SQLite on ephemeral disk: history
+# resets on redeploy — attach a disk at /srv/data for persistence, see README).
+services:
+  - type: web
+    name: equipment-triage
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: FLASK_DEBUG
+        value: 0
+      - key: DATA_DIR
+        value: /srv/data
+      - key: AI_PROVIDER
+        value: openrouter
+      - key: OPENROUTER_API_KEY
+        sync: false   # set in the Render dashboard; never committed
+      - key: GEMINI_API_KEY
+        sync: false   # alternative provider; set AI_PROVIDER=gemini to use it

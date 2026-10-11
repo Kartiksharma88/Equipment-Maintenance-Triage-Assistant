@@ -1,0 +1,292 @@
+[
+  {
+    "id": "KB-PUMP-01",
+    "equipment_type": "Centrifugal Pump",
+    "section": "1.1 Normal operation",
+    "title": "Normal operating envelope",
+    "content": "Rated flow 20-120 m3/h, discharge 2-6 bar, bearing temperature below 75C, vibration below 4.5 mm/s. Check suction strainer monthly. Maintain oil sight-glass between 50-75%.",
+    "fault_tags": [
+      "normal",
+      "baseline",
+      "operation"
+    ],
+    "inspection_ref": "Daily walk-around: sight-glass, leaks, noise."
+  },
+  {
+    "id": "KB-PUMP-02",
+    "equipment_type": "Centrifugal Pump",
+    "section": "4.2 Vibration & noise faults",
+    "title": "High vibration / grinding noise",
+    "content": "Possible causes: bearing wear or spalling, impeller imbalance from erosion, misalignment after overhaul, loose foundation bolts, cavitation from suction blockage. Inspect: measure vibration at bearing housings in three axes, listen with stethoscope, check bolt torque 80 Nm, inspect impeller for pitting. Do NOT run above 7.1 mm/s.",
+    "fault_tags": [
+      "vibration",
+      "noise",
+      "grinding",
+      "shaking",
+      "bearing",
+      "misalignment",
+      "cavitation",
+      "imbalance"
+    ],
+    "inspection_ref": "VIB-CHECK-01: tri-axial vibration reading + bolt torque check."
+  },
+  {
+    "id": "KB-PUMP-03",
+    "equipment_type": "Centrifugal Pump",
+    "section": "5.1 Lubrication & overheating",
+    "title": "Overheating / low oil",
+    "content": "Bearing temperature above 85C warrants inspection; above 95C stop the pump and allow cooldown before touching. Possible causes: low oil level, degraded oil, blocked cooling fins, prolonged dead-head operation, worn bearings. Inspect: oil level and colour, cooling passages, feel for hot spots only with IR thermometer (burn hazard), verify suction/discharge valves open.",
+    "fault_tags": [
+      "overheat",
+      "hot",
+      "temperature",
+      "oil",
+      "lubrication",
+      "seized",
+      "smoke",
+      "smell"
+    ],
+    "inspection_ref": "LUBE-CHECK-02: oil level, oil sample colour, IR temperature survey."
+  },
+  {
+    "id": "KB-PUMP-04",
+    "equipment_type": "Centrifugal Pump",
+    "section": "3.4 Pressure & flow faults",
+    "title": "Low discharge pressure / no flow",
+    "content": "Possible causes: air-locked casing, clogged suction strainer, worn wear-rings, leaking mechanical seal, closed or throttled valve, motor running backwards. Inspect: prime casing, read suction/discharge gauges together, check strainer delta-P, inspect seal drain for drips (more than 10 drops/min means replace). Never throttle suction valve to control flow.",
+    "fault_tags": [
+      "pressure",
+      "flow",
+      "leak",
+      "seal",
+      "priming",
+      "cavitation",
+      "no water"
+    ],
+    "inspection_ref": "FLOW-CHECK-03: dual gauge reading + seal drip count."
+  },
+  {
+    "id": "KB-PUMP-05",
+    "equipment_type": "Centrifugal Pump",
+    "section": "7.0 Preventive maintenance",
+    "title": "Scheduled service tasks",
+    "content": "Every 4000 h or 6 months: change oil (ISO VG 46), replace strainer, check alignment with dial indicator (less than 0.05 mm), test standby pump. Record readings in maintenance log. Torque casing bolts to spec.",
+    "fault_tags": [
+      "service",
+      "preventive",
+      "schedule",
+      "maintenance"
+    ],
+    "inspection_ref": "PM-PUMP-4000H checklist."
+  },
+  {
+    "id": "KB-COMP-01",
+    "equipment_type": "Air Compressor",
+    "section": "2.1 Start-up & loading",
+    "title": "Normal start and load cycle",
+    "content": "Normal discharge 6-8 bar, sump temperature 70-90C, load/unload cycle every 3-8 min. Long continuous load indicates downstream leak or undersizing. Daily: drain condensate, check belt tension deflection 10 mm per 500 mm span.",
+    "fault_tags": [
+      "normal",
+      "startup",
+      "loading",
+      "cycle"
+    ],
+    "inspection_ref": "Daily drain + belt deflection check."
+  },
+  {
+    "id": "KB-COMP-02",
+    "equipment_type": "Air Compressor",
+    "section": "4.1 Over-temperature trip",
+    "title": "High discharge temperature trip",
+    "content": "Possible causes: low oil, clogged cooler, failed thermostatic valve, high ambient above 40C, restricted intake filter. Trip threshold 105C (warning 95C). Inspect: oil level, cooler fins with compressed air (wear eye protection), intake filter vacuum switch, verify ventilation fans running. Reset only after cooldown below 70C.",
+    "fault_tags": [
+      "overheat",
+      "trip",
+      "temperature",
+      "oil",
+      "cooler",
+      "shutdown"
+    ],
+    "inspection_ref": "TEMP-RESET-01: cooldown verification + cooler cleaning."
+  },
+  {
+    "id": "KB-COMP-03",
+    "equipment_type": "Air Compressor",
+    "section": "5.2 Oil carryover & level",
+    "title": "Low oil / oil in air line",
+    "content": "Possible causes: separator element saturated (more than 4000 h), overfilled sump causing foaming, leaking scavenge line, wrong viscosity. Inspect: sight-glass, sample separator delta-P (more than 0.8 bar means replace), check scavenge orifice for carbon. Top up only with approved synthetic.",
+    "fault_tags": [
+      "oil",
+      "level",
+      "carryover",
+      "separator",
+      "leak"
+    ],
+    "inspection_ref": "OIL-SEP-02: delta-P + scavenge line check."
+  },
+  {
+    "id": "KB-COMP-04",
+    "equipment_type": "Air Compressor",
+    "section": "3.3 Pressure faults",
+    "title": "Low pressure / will not build pressure",
+    "content": "Possible causes: leaking hose/coupling, stuck inlet valve, worn screw element, faulty pressure switch, belt slip. Inspect: soap-test joints, observe inlet valve stroke during load command, measure motor current vs rated, check belt dust. Isolate receiver before working on lines (stored-energy hazard).",
+    "fault_tags": [
+      "pressure",
+      "leak",
+      "belt",
+      "valve",
+      "low pressure"
+    ],
+    "inspection_ref": "LEAK-TEST-04: soap test + current draw comparison."
+  },
+  {
+    "id": "KB-HVAC-01",
+    "equipment_type": "HVAC Unit",
+    "section": "2.0 Normal operation",
+    "title": "Normal cooling performance",
+    "content": "Supply air 12-16C below return, line pressure 2-5 bar, compressor current within nameplate +/-10%, condensate drain flowing. Replace filters every 3 months; wash coils annually.",
+    "fault_tags": [
+      "normal",
+      "cooling",
+      "baseline"
+    ],
+    "inspection_ref": "Filter + coil visual check."
+  },
+  {
+    "id": "KB-HVAC-02",
+    "equipment_type": "HVAC Unit",
+    "section": "4.3 No-cool / weak airflow",
+    "title": "Insufficient cooling or airflow",
+    "content": "Possible causes: clogged filter, frozen evaporator from low refrigerant, failed blower capacitor, blocked condenser, thermostat miscalibrated. Inspect: filter light test, coil frost pattern, capacitor microfarad reading, condenser clearance 600 mm, thermostat calibration offset. Isolate power before opening panels.",
+    "fault_tags": [
+      "no cool",
+      "warm",
+      "airflow",
+      "filter",
+      "refrigerant",
+      "frost",
+      "thermostat"
+    ],
+    "inspection_ref": "COOL-CHECK-05: filter, frost, capacitor, clearance."
+  },
+  {
+    "id": "KB-CONV-01",
+    "equipment_type": "Conveyor Belt",
+    "section": "1.0 Normal operation",
+    "title": "Normal belt tracking",
+    "content": "Belt runs centred within 10 mm, motor current steady, rollers turn freely, no squeal. Check tracking weekly, clean spillage daily. Nip-point guards must be in place.",
+    "fault_tags": [
+      "normal",
+      "tracking",
+      "baseline"
+    ],
+    "inspection_ref": "Tracking + guard check."
+  },
+  {
+    "id": "KB-CONV-02",
+    "equipment_type": "Conveyor Belt",
+    "section": "4.0 Belt distress",
+    "title": "Squeal, slip, frayed edges",
+    "content": "Possible causes: under-tensioned belt, seized idler, material build-up on drum, misaligned pulley, overloaded feed. Inspect: belt tension sag 1-2% of span, spin each idler by hand (lockout first), scrape drum, laser-align pulleys, weigh feed rate. Lockout/tagout before touching rollers - entanglement hazard.",
+    "fault_tags": [
+      "squeal",
+      "slip",
+      "noise",
+      "fray",
+      "tension",
+      "idler",
+      "misalignment",
+      "overload"
+    ],
+    "inspection_ref": "BELT-CHECK-06: tension sag + idler spin + alignment."
+  },
+  {
+    "id": "KB-CONV-03",
+    "equipment_type": "Conveyor Belt",
+    "section": "5.1 Drive overload",
+    "title": "Motor overload trip",
+    "content": "Possible causes: jammed material, failed bearing raising friction, incorrect overload relay setting, voltage dip. Inspect: clear chute, megger motor if tripped twice, verify relay setting equals nameplate FLA, log current trend. Reset once; second trip requires electrician.",
+    "fault_tags": [
+      "overload",
+      "trip",
+      "current",
+      "jam",
+      "motor"
+    ],
+    "inspection_ref": "DRIVE-CHECK-07: chute, relay setting, current log."
+  },
+  {
+    "id": "KB-GEN-01",
+    "equipment_type": "Diesel Generator",
+    "section": "1.0 Standby readiness",
+    "title": "Ready-to-start condition",
+    "content": "Battery healthy, coolant 60-90C when running, oil pressure 3-5 bar, fuel above 75%, block heater energized below 10C ambient. Exercise weekly 15 min under 30% load.",
+    "fault_tags": [
+      "normal",
+      "standby",
+      "battery",
+      "readiness"
+    ],
+    "inspection_ref": "Weekly no-load exercise + battery voltage."
+  },
+  {
+    "id": "KB-GEN-02",
+    "equipment_type": "Diesel Generator",
+    "section": "4.2 Crank / no-start",
+    "title": "Cranks but will not start",
+    "content": "Possible causes: air in fuel after filter change, dead battery cells, clogged fuel filter, faulty stop solenoid, low coolant lockout. Inspect: bleed fuel to clear bubbles, load-test battery, replace filter if more than 500 h, check solenoid click on start signal, read fault codes before clearing. No ether starting fluid - explosion risk.",
+    "fault_tags": [
+      "no start",
+      "crank",
+      "battery",
+      "fuel",
+      "filter",
+      "solenoid"
+    ],
+    "inspection_ref": "START-CHECK-08: fuel bleed + battery load test."
+  },
+  {
+    "id": "KB-GEN-03",
+    "equipment_type": "Diesel Generator",
+    "section": "4.5 High current / breaker trip",
+    "title": "Breaker trips under load",
+    "content": "Possible causes: overloaded phases, shorted load, failing AVR causing voltage swing, loose busbar heating. Inspect: clamp each phase, compare to nameplate, IR-scan busbars, review load schedule. Never uprate breaker without engineering review.",
+    "fault_tags": [
+      "breaker",
+      "trip",
+      "overload",
+      "current",
+      "voltage"
+    ],
+    "inspection_ref": "LOAD-CHECK-09: per-phase clamp + IR scan."
+  },
+  {
+    "id": "KB-FAN-01",
+    "equipment_type": "Industrial Fan",
+    "section": "1.0 Normal operation",
+    "title": "Normal vibration & flow",
+    "content": "Vibration below 4.5 mm/s, bearings below 80C, belts matched set with equal tension. Grease every 2000 h (2 shots, do not over-grease).",
+    "fault_tags": [
+      "normal",
+      "baseline",
+      "grease"
+    ],
+    "inspection_ref": "Belt match + grease log."
+  },
+  {
+    "id": "KB-FAN-02",
+    "equipment_type": "Industrial Fan",
+    "section": "3.2 Vibration & imbalance",
+    "title": "Excessive vibration / rumble",
+    "content": "Possible causes: dust build-up on wheel causing imbalance, loose hub set-screw, cracked blade, soft-foot mounting, resonance at VFD skip frequency. Inspect: clean wheel, torque set-screws, dye-check blades, check soft foot with feeler gauge, review VFD skip bands. Balance weights only by trained staff.",
+    "fault_tags": [
+      "vibration",
+      "rumble",
+      "imbalance",
+      "blade",
+      "bearing",
+      "noise"
+    ],
+    "inspection_ref": "FAN-BAL-10: wheel clean + set-screw torque + soft-foot."
+  }
+]
